@@ -101,6 +101,10 @@ module Sequel
 
           PaperTrailHelpers.create_version(model, attrs)
         end
+
+        def current_version_id
+          versions.any? ? versions.first.id : nil
+        end
       end
       # rubocop:enable Style/Documentation
 

@@ -85,24 +85,29 @@ describe Sequel::Plugins::HasPaperTrail do
     expect(without_fields(record.versions, :id)).to be_include(expected)
   end
 
-  context 'ignore attributes' do
-    it 'creates versions on record update event without ignored attrs' do
-      record = item_class.create(name: 'test',
-                                 email: 'test@test.com',
-                                 ignore: 'secret')
-      record.update(ignore: '2')
-      expected = {
-        item_type: 'TetsClass',
-        item_id: 1,
-        event: 'update',
-        whodunnit: 'Admin',
-        created_at: Time.now.utc.iso8601,
-        transaction_id: nil,
-        object: "---\nid: 1\nname: test\nemail: test@test.com\nignore: \n",
-        info: '{"val":1}',
-        other_info: '{}'
-      }
-      expect{ record.update(ignore: '2') }.to_not change { record.versions.count }
-    end
+  it 'creates versions on record update event without ignored attrs' do
+    record = item_class.create(name: 'test',
+                               email: 'test@test.com',
+                               ignore: 'secret')
+    record.update(ignore: '2')
+    expected = {
+      item_type: 'TetsClass',
+      item_id: 1,
+      event: 'update',
+      whodunnit: 'Admin',
+      created_at: Time.now.utc.iso8601,
+      transaction_id: nil,
+      object: "---\nid: 1\nname: test\nemail: test@test.com\nignore: \n",
+      info: '{"val":1}',
+      other_info: '{}'
+    }
+    expect{ record.update(ignore: '2') }.to_not change { record.versions.count }
+  end
+
+  it 'current_version_id returns the latest version id' do
+    record = item_class.create(name: 'test', email: 'test@test.com')
+    record.update(name: '1')
+    record.update(name: '2')
+    expect(record.current_version_id).to eq(record.versions.first.id)
   end
 end
