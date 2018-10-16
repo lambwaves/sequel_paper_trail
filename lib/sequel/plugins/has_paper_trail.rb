@@ -52,12 +52,9 @@ module Sequel
 
           return unless SequelPaperTrail.enabled?
 
-          object_changes = values.each_with_object({}) { |(k, v), acc| acc[k] = [nil, v] }
-
           attrs = {
             item_id: id,
             event: :create,
-            object_changes: object_changes.to_json,
             object: nil
           }
 
@@ -73,8 +70,7 @@ module Sequel
           attrs = {
             item_id: id,
             event: :update,
-            object_changes: column_changes.to_json,
-            object: values.merge(initial_values).to_json
+            object: values.merge(initial_values).to_yaml
           }
 
           PaperTrailHelpers.create_version(model, attrs)
@@ -88,8 +84,7 @@ module Sequel
           attrs = {
             item_id: id,
             event: :destroy,
-            object_changes: nil,
-            object: values.to_json
+            object: values.to_yaml
           }
 
           PaperTrailHelpers.create_version(model, attrs)
@@ -103,8 +98,7 @@ module Sequel
           default_attrs = {
             item_type: model.paper_trail_item_class_name.to_s,
             whodunnit: SequelPaperTrail.whodunnit,
-            created_at: Time.now.utc.iso8601,
-            transaction_id: nil
+            created_at: Time.now.utc.iso8601
           }
 
           create_attrs = default_attrs

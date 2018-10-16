@@ -14,3 +14,4 @@ db.sqlite3
 .rspec_status
 .bash_history.docker
 .pry_history.docker
+*.swp
