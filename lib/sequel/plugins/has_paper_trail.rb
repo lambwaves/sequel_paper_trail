@@ -118,8 +118,8 @@ module Sequel
           end
         end
 
-        def self.to_yaml(string)
-          string.to_yaml.gsub("\n:", "\n")
+        def self.to_yaml(hash)
+          YAML.dump(hash.stringify_keys)
         end
       end
       # rubocop:enable Style/Documentation
