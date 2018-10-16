@@ -13,6 +13,7 @@ class SpecPaperDb
       primary_key :id
       column :name,     :text
       column :email,    :text
+      column :ignore,    :text
     end
   end
 
@@ -30,7 +31,6 @@ class SpecPaperDb
       column 'whodunnit', :text
       column 'created_at', :text
       column 'transaction_id', :integer
-      column 'object_changes', :text
       column 'object', :text
       column 'info', :text
       column 'other_info', :text

@@ -17,7 +17,8 @@ describe Sequel::Plugins::HasPaperTrail do
 
     item_class.plugin :has_paper_trail,
                       item_class_name: 'TetsClass',
-                      class_name: version_class
+                      class_name: version_class,
+                      ignore: [:ignore]
 
     SequelPaperTrail.whodunnit = 'Admin'
     SequelPaperTrail.info_for_paper_trail = {
@@ -42,13 +43,12 @@ describe Sequel::Plugins::HasPaperTrail do
         whodunnit: 'Admin',
         created_at: Time.now.utc.iso8601,
         transaction_id: nil,
-        object_changes: '{"name":[null,"test"],"email":[null,"test@test.com"],"id":[null,1]}',
         object: nil,
         info: '{"val":1}',
         other_info: '{}'
       }
     ]
-    expect(without_fields(record.versions, :id)).to eql(expected)
+    expect(without_fields(record.versions, :id)).to eq(expected)
   end
 
   it 'creates versions on record update event' do
@@ -61,8 +61,7 @@ describe Sequel::Plugins::HasPaperTrail do
       whodunnit: 'Admin',
       created_at: Time.now.utc.iso8601,
       transaction_id: nil,
-      object_changes: '{"name":["test","2"]}',
-      object: '{"id":1,"name":"test","email":"test@test.com"}',
+      object: "---\nid: 1\nname: test\nemail: test@test.com\nignore: \n",
       info: '{"val":1}',
       other_info: '{}'
     }
@@ -79,11 +78,31 @@ describe Sequel::Plugins::HasPaperTrail do
       whodunnit: 'Admin',
       created_at: Time.now.utc.iso8601,
       transaction_id: nil,
-      object_changes: nil,
-      object: '{"id":1,"name":"test","email":"test@test.com"}',
+      object: "---\nid: 1\nname: test\nemail: test@test.com\nignore: \n",
       info: '{"val":1}',
       other_info: '{}'
     }
     expect(without_fields(record.versions, :id)).to be_include(expected)
+  end
+
+  context 'ignore attributes' do
+    it 'creates versions on record update event without ignored attrs' do
+      record = item_class.create(name: 'test',
+                                 email: 'test@test.com',
+                                 ignore: 'secret')
+      record.update(ignore: '2')
+      expected = {
+        item_type: 'TetsClass',
+        item_id: 1,
+        event: 'update',
+        whodunnit: 'Admin',
+        created_at: Time.now.utc.iso8601,
+        transaction_id: nil,
+        object: "---\nid: 1\nname: test\nemail: test@test.com\nignore: \n",
+        info: '{"val":1}',
+        other_info: '{}'
+      }
+      expect{ record.update(ignore: '2') }.to_not change { record.versions.count }
+    end
   end
 end

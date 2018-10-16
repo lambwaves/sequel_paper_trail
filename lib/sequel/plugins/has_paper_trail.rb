@@ -76,14 +76,13 @@ module Sequel
 
           return unless SequelPaperTrail.enabled?
           return if column_changes.empty?
+          return if (column_changes.keys - model.paper_trail_ignore_attributes)
+            .empty?
 
           attrs = {
             item_id: id,
             event: :update,
-            object: PaperTrailHelpers.to_yaml(
-              PaperTrailHelpers.versionable_attributes(model, values)
-                .merge(initial_values)
-            )
+            object: PaperTrailHelpers.to_yaml(values.merge(initial_values))
           }
 
           PaperTrailHelpers.create_version(model, attrs)
@@ -97,9 +96,7 @@ module Sequel
           attrs = {
             item_id: id,
             event: :destroy,
-            object: PaperTrailHelpers.to_yaml(
-              PaperTrailHelpers.versionable_attributes(model, values)
-            )
+            object: PaperTrailHelpers.to_yaml(values)
           }
 
           PaperTrailHelpers.create_version(model, attrs)
@@ -133,15 +130,8 @@ module Sequel
           end
         end
 
-        def self.versionable_attributes(model, hash)
-          model.paper_trail_ignore_attributes.each do |attr|
-            hash.delete(attr)
-          end
-          hash
-        end
-
         def self.to_yaml(hash)
-          YAML.dump(hash.stringify_keys)
+          YAML.dump(hash).gsub("\n:", "\n")
         end
       end
       # rubocop:enable Style/Documentation
