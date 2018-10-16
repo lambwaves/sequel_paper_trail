@@ -13,8 +13,13 @@ module Sequel
     module HasPaperTrail
       # rubocop:disable Metrics/MethodLength
       def self.configure(model, opts = {})
-        paper_trail_item_class_name = opts.fetch(:item_class_name) { model.name }
-        paper_trail_version_class_name = opts.fetch(:class_name) { 'SequelPaperTrail::Version' }
+        paper_trail_item_class_name = opts.fetch(:item_class_name) do
+          model.name
+        end
+        paper_trail_version_class_name = opts.fetch(:class_name) do
+          'SequelPaperTrail::Version'
+        end
+        paper_trail_ignore_attributes = opts.fetch(:ignore) { [] }
 
         model.plugin :dirty
         model.one_to_many :versions,
@@ -25,6 +30,7 @@ module Sequel
         model.instance_eval do
           @paper_trail_item_class_name = paper_trail_item_class_name
           @paper_trail_version_class_name = paper_trail_version_class_name
+          @paper_trail_ignore_attributes = paper_trail_ignore_attributes
         end
       end
       # rubocop:enable Metrics/MethodLength
@@ -34,7 +40,8 @@ module Sequel
         Sequel::Plugins.inherited_instance_variables(
           self,
           :@paper_trail_item_class_name => :dup,
-          :@paper_trail_version_class_name => :dup
+          :@paper_trail_version_class_name => :dup,
+          :@paper_trail_ignore_attributes => :dup
         )
 
         # The class name of item for versioning
@@ -42,6 +49,9 @@ module Sequel
 
         # The version class name
         attr_reader :paper_trail_version_class_name
+
+        # Attributes to ignore in version table
+        attr_reader :paper_trail_ignore_attributes
       end
       # rubocop:enable Style/Documentation
 
@@ -70,7 +80,10 @@ module Sequel
           attrs = {
             item_id: id,
             event: :update,
-            object: PaperTrailHelpers.to_yaml(values.merge(initial_values))
+            object: PaperTrailHelpers.to_yaml(
+              PaperTrailHelpers.versionable_attributes(model, values)
+                .merge(initial_values)
+            )
           }
 
           PaperTrailHelpers.create_version(model, attrs)
@@ -84,7 +97,9 @@ module Sequel
           attrs = {
             item_id: id,
             event: :destroy,
-            object: PaperTrailHelpers.to_yaml(values)
+            object: PaperTrailHelpers.to_yaml(
+              PaperTrailHelpers.versionable_attributes(model, values)
+            )
           }
 
           PaperTrailHelpers.create_version(model, attrs)
@@ -116,6 +131,13 @@ module Sequel
           else
             class_name
           end
+        end
+
+        def self.versionable_attributes(model, hash)
+          model.paper_trail_ignore_attributes.each do |attr|
+            hash.delete(attr)
+          end
+          hash
         end
 
         def self.to_yaml(hash)
