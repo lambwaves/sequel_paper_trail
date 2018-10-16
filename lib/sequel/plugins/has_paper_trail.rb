@@ -70,7 +70,7 @@ module Sequel
           attrs = {
             item_id: id,
             event: :update,
-            object: values.merge(initial_values).to_yaml
+            object: PaperTrailHelpers.to_yaml(values.merge(initial_values))
           }
 
           PaperTrailHelpers.create_version(model, attrs)
@@ -84,7 +84,7 @@ module Sequel
           attrs = {
             item_id: id,
             event: :destroy,
-            object: values.to_yaml
+            object: PaperTrailHelpers.to_yaml(values)
           }
 
           PaperTrailHelpers.create_version(model, attrs)
@@ -116,6 +116,10 @@ module Sequel
           else
             class_name
           end
+        end
+
+        def self.to_yaml(string)
+          string.to_yaml.gsub("\n:", "\n")
         end
       end
       # rubocop:enable Style/Documentation
