@@ -20,6 +20,7 @@ module Sequel
           'SequelPaperTrail::Version'
         end
         paper_trail_ignore_attributes = opts.fetch(:ignore) { [] }
+        paper_trail_whodunnit = opts.fetch(:whodunnit) { proc { '' } }
 
         model.plugin :dirty
         model.one_to_many :versions,
@@ -31,6 +32,7 @@ module Sequel
           @paper_trail_item_class_name = paper_trail_item_class_name
           @paper_trail_version_class_name = paper_trail_version_class_name
           @paper_trail_ignore_attributes = paper_trail_ignore_attributes
+          @paper_trail_whodunnit = paper_trail_whodunnit
         end
       end
       # rubocop:enable Metrics/MethodLength
@@ -41,7 +43,8 @@ module Sequel
           self,
           :@paper_trail_item_class_name => :dup,
           :@paper_trail_version_class_name => :dup,
-          :@paper_trail_ignore_attributes => :dup
+          :@paper_trail_ignore_attributes => :dup,
+          :@paper_trail_whodunnit => :dup
         )
 
         # The class name of item for versioning
@@ -52,6 +55,9 @@ module Sequel
 
         # Attributes to ignore in version table
         attr_reader :paper_trail_ignore_attributes
+
+        # Attributes to set whodunnit
+        attr_reader :paper_trail_whodunnit
       end
       # rubocop:enable Style/Documentation
 
@@ -113,7 +119,7 @@ module Sequel
         def self.create_version(model, attrs)
           default_attrs = {
             item_type: model.paper_trail_item_class_name.to_s,
-            whodunnit: SequelPaperTrail.whodunnit,
+            whodunnit: model.paper_trail_whodunnit.call,
             created_at: Time.now.utc.iso8601
           }
 

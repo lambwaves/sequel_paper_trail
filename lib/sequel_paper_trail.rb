@@ -39,5 +39,4 @@ end
 
 # Default Configuration
 SequelPaperTrail.enabled = true
-SequelPaperTrail.whodunnit = nil
 SequelPaperTrail.info_for_paper_trail = {}
