@@ -61,7 +61,7 @@ describe Sequel::Plugins::HasPaperTrail do
       whodunnit: 'Admin',
       created_at: Time.now.utc.iso8601,
       transaction_id: nil,
-      object: "---\nid: 1\nname: test\nemail: test@test.com\nignore:\n",
+      object: '{"id":1,"name":"test","email":"test@test.com","ignore":null}',
       info: '{"val":1}',
       other_info: '{}'
     }
@@ -78,7 +78,7 @@ describe Sequel::Plugins::HasPaperTrail do
       whodunnit: 'Admin',
       created_at: Time.now.utc.iso8601,
       transaction_id: nil,
-      object: "---\nid: 1\nname: test\nemail: test@test.com\nignore:\n",
+      object: '{"id":1,"name":"test","email":"test@test.com","ignore":null}',
       info: '{"val":1}',
       other_info: '{}'
     }
@@ -97,7 +97,7 @@ describe Sequel::Plugins::HasPaperTrail do
       whodunnit: 'Admin',
       created_at: Time.now.utc.iso8601,
       transaction_id: nil,
-      object: "---\nid: 1\nname: test\nemail: test@test.com\nignore:\n",
+      object: '{"id":1,"name":"test","email":"test@test.com","ignore":null}',
       info: '{"val":1}',
       other_info: '{}'
     }

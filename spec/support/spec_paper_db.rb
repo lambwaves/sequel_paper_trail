@@ -4,6 +4,7 @@ class SpecPaperDb
     @db = if RUBY_PLATFORM == 'java'
             Sequel.connect('jdbc:sqlite:db.sqlite3')
           else
+            Sequel.extension(:sqlite_json_ops)
             Sequel.sqlite(':memory:')
           end
   end
@@ -31,7 +32,7 @@ class SpecPaperDb
       column 'whodunnit', :text
       column 'created_at', :text
       column 'transaction_id', :integer
-      column 'object', :text
+      column 'object', :json
       column 'info', :text
       column 'other_info', :text
     end

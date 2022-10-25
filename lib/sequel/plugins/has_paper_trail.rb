@@ -88,7 +88,7 @@ module Sequel
           attrs = {
             item_id: id,
             event: :update,
-            object: PaperTrailHelpers.to_yaml(values.merge(initial_values))
+            object: PaperTrailHelpers.serializer(values.merge(initial_values))
           }
 
           PaperTrailHelpers.create_version(model, attrs)
@@ -102,7 +102,7 @@ module Sequel
           attrs = {
             item_id: id,
             event: :destroy,
-            object: PaperTrailHelpers.to_yaml(values)
+            object: PaperTrailHelpers.serializer(values)
           }
 
           PaperTrailHelpers.create_version(model, attrs)
@@ -149,8 +149,8 @@ module Sequel
           end
         end
 
-        def self.to_yaml(hash)
-          YAML.dump(hash).gsub("\n:", "\n")
+        def self.serializer(hash)
+          JSON.dump(hash)
         end
       end
       # rubocop:enable Style/Documentation
