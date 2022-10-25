@@ -117,14 +117,23 @@ module Sequel
       # rubocop:disable Style/Documentation
       module PaperTrailHelpers
         def self.create_version(model, attrs)
+          whodunnit = SequelPaperTrail.whodunnit.respond_to?(:call) ? SequelPaperTrail.whodunnit.call : SequelPaperTrail.whodunnit
           default_attrs = {
             item_type: model.paper_trail_item_class_name.to_s,
-            whodunnit: model.paper_trail_whodunnit.call,
+            whodunnit: whodunnit,
             created_at: Time.now.utc.iso8601
           }
 
+          extra_params = if SequelPaperTrail.info_for_paper_trail.nil?
+              {}
+            elsif SequelPaperTrail.info_for_paper_trail.respond_to?(:call)
+              SequelPaperTrail.info_for_paper_trail.call
+            else
+              SequelPaperTrail.info_for_paper_trail
+            end
+
           create_attrs = default_attrs
-                         .merge(SequelPaperTrail.info_for_paper_trail)
+                         .merge(extra_params)
                          .merge(attrs)
 
           version_class(model.paper_trail_version_class_name).create(create_attrs)
