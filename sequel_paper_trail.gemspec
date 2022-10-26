@@ -15,10 +15,10 @@ Gem::Specification.new do |s|
   s.homepage      = 'https://github.com/lazebny/sequel_paper_trail'
   s.license       = 'MIT'
 
-  s.files             = Dir['README*', 'LICENSE*', 'CHANGELOG*']
+  s.files             = Dir['README*', 'LICENSE*']
   s.files            += Dir['{lib}/**/*']
   s.test_files        = Dir['{spec}/**/*']
-  s.extra_rdoc_files  = Dir['README*', 'LICENSE*', 'CHANGELOG*']
+  s.extra_rdoc_files  = Dir['README*', 'LICENSE*']
   s.extra_rdoc_files += Dir['{docs}/**/*.{txt,md}']
   s.require_paths     = ['lib']
 
